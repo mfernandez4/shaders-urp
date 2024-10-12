@@ -93,12 +93,11 @@ public class TerrainFace
         _mesh.triangles = triangles;
         
         // Recalculate the normals of the mesh to ensure lighting is correct
-        Vector3[] normals = new Vector3[vertices.Length];
+        _mesh.RecalculateNormals();
+        Vector3[] normals = _mesh.normals;
         Vector4[] tangents = new Vector4[vertices.Length];
         for (int i = 0; i < normals.Length; i++)
         {
-            normals[i] = vertices[i].normalized;
-            
             // Calculate the tangents of the mesh
             Vector4 tangent;
             tangent.x = -normals[i].y;
@@ -107,9 +106,7 @@ public class TerrainFace
             tangent.w = -1f;
             tangents[i] = tangent;
         }
-        // _mesh.normals = normals;
         _mesh.tangents = tangents;
-        _mesh.RecalculateNormals();
         
         
         // Assign the UVs of the mesh

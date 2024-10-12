@@ -17,13 +17,13 @@ public class Planet : MonoBehaviour
     
     public SettingsShape settingsShape;
     public SettingsColor settingsColor;
-    public Material planetMaterial;
     
     [HideInInspector] public bool shapeSettingsFoldout;
     [HideInInspector] public bool colorSettingsFoldout;
 
 
-    private ShapeGenerator _shapeGenerator;
+    private ShapeGenerator _shapeGenerator = new();
+    private ColorGenerator _colorGenerator = new();
     
     // Array of mesh filters, for displaying the planet's mesh
     [SerializeField, HideInInspector] 
@@ -33,7 +33,9 @@ public class Planet : MonoBehaviour
 
     void Initialize()
     {
-        _shapeGenerator = new ShapeGenerator(settingsShape);
+        _shapeGenerator.UpdateSettings(settingsShape);
+        _colorGenerator.UpdateSettings(settingsColor);
+        
         // Create a new array of mesh filters and terrain faces
         if (_meshFilters == null || _meshFilters.Length == 0)
         {
@@ -53,13 +55,14 @@ public class Planet : MonoBehaviour
                 // Set the parent of the terrain face to the planet
                 meshObj.transform.parent = transform;
 
-                // Add a mesh renderer and mesh filter to the terrain face
-                // meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = planetMaterial;
+                // Add a mesh renderer
+                meshObj.AddComponent<MeshRenderer>();
+                // terrain face to the mesh filters array
                 _meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 // Create a new mesh for the terrain face
                 _meshFilters[i].sharedMesh = new Mesh();
             }
+            _meshFilters[i].gameObject.GetComponent<MeshRenderer>().sharedMaterial = settingsColor.planetMaterial;
             
             // Create a new terrain face, passing in the mesh, resolution, and direction
             _terrainFaces[i] = new TerrainFace(_shapeGenerator, _meshFilters[i].sharedMesh, resolution, directions[i]);
@@ -100,14 +103,14 @@ public class Planet : MonoBehaviour
             var face = _terrainFaces[index];
             face.ConstructMesh();
         }
+        
+        // Update the elevation of the planet
+        _colorGenerator.UpdateElevation(_shapeGenerator.elevationMinMax);
+        Debug.Log($"Elevation: min: {_shapeGenerator.elevationMinMax.Min}, max: {_shapeGenerator.elevationMinMax.Max}");
     }
     
     void GenerateColors()
     {
-        foreach (MeshFilter meshFilter in _meshFilters)
-        {
-            meshFilter.GetComponent<MeshRenderer>().sharedMaterial = planetMaterial;
-            meshFilter.GetComponent<MeshRenderer>().sharedMaterial.color = settingsColor.planetColor;
-        }
+        _colorGenerator.UpdateColors();
     }
 }
