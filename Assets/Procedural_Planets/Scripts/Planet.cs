@@ -11,10 +11,13 @@ public class Planet : MonoBehaviour
     [Range(2, 256)]
     public int resolution = 32;
     public bool autoUpdate = true;
+    public enum FaceRenderMask { All, Top, Bottom, Left, Right, Front, Back }
+    public FaceRenderMask faceRenderMask;
     
     
     public SettingsShape settingsShape;
     public SettingsColor settingsColor;
+    public Material planetMaterial;
     
     [HideInInspector] public bool shapeSettingsFoldout;
     [HideInInspector] public bool colorSettingsFoldout;
@@ -51,7 +54,8 @@ public class Planet : MonoBehaviour
                 meshObj.transform.parent = transform;
 
                 // Add a mesh renderer and mesh filter to the terrain face
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                // meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                meshObj.AddComponent<MeshRenderer>().sharedMaterial = planetMaterial;
                 _meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 // Create a new mesh for the terrain face
                 _meshFilters[i].sharedMesh = new Mesh();
@@ -59,6 +63,8 @@ public class Planet : MonoBehaviour
             
             // Create a new terrain face, passing in the mesh, resolution, and direction
             _terrainFaces[i] = new TerrainFace(_shapeGenerator, _meshFilters[i].sharedMesh, resolution, directions[i]);
+            bool renderFace = faceRenderMask == FaceRenderMask.All || (int) faceRenderMask - 1 == i;
+            _meshFilters[i].gameObject.SetActive(renderFace);
         }
     }
     
@@ -85,8 +91,13 @@ public class Planet : MonoBehaviour
 
     void GenerateMesh()
     {
-        foreach (TerrainFace face in _terrainFaces)
+        for (var index = 0; index < _terrainFaces.Length; index++)
         {
+            // Skip the terrain face if it is not active
+            if (!_meshFilters[index].gameObject.activeSelf) continue;
+            
+            // Construct the mesh for the terrain face
+            var face = _terrainFaces[index];
             face.ConstructMesh();
         }
     }
@@ -95,6 +106,7 @@ public class Planet : MonoBehaviour
     {
         foreach (MeshFilter meshFilter in _meshFilters)
         {
+            meshFilter.GetComponent<MeshRenderer>().sharedMaterial = planetMaterial;
             meshFilter.GetComponent<MeshRenderer>().sharedMaterial.color = settingsColor.planetColor;
         }
     }

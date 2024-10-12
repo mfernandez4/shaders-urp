@@ -50,8 +50,8 @@ public class TerrainFace
                 // Calculate the point on the unit cube that this vertex corresponds to
                 Vector3 pointOnUnitCube = 
                     _localUp 
-                    + (_localRight * (percent.x - 0.5f) * 2) 
-                    + (_localForward * (percent.y - 0.5f) * 2);
+                    + (_localRight * ((percent.x - 0.5f) * 2)) 
+                    + (_localForward * ((percent.y - 0.5f) * 2));
 
                 // Turn into a point on the unit sphere
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
@@ -72,19 +72,18 @@ public class TerrainFace
                  */
                 
                 // If we are not at the edge of the face
-                if (x != Resolution - 1 && y != Resolution - 1)
-                {
-                    // Add the indices of the vertices that make up the current face
-                    // First triangle ---------------------
-                    triangles[triIndex] = index; // vertex 0
-                    triangles[triIndex + 1] = index + Resolution + 1; // vertex 5
-                    triangles[triIndex + 2] = index + Resolution; // vertex 4
-                    // Second triangle ---------------------
-                    triangles[triIndex + 3] = index; // vertex 0
-                    triangles[triIndex + 4] = index + 1; // vertex 1
-                    triangles[triIndex + 5] = index + Resolution + 1; // vertex 5
-                    triIndex += 6;
-                }
+                if (x == Resolution - 1 || y == Resolution - 1) continue;
+                
+                // Add the indices of the vertices that make up the current face
+                // First triangle ---------------------
+                triangles[triIndex] = index; // vertex 0
+                triangles[triIndex + 1] = index + Resolution + 1; // vertex 5
+                triangles[triIndex + 2] = index + Resolution; // vertex 4
+                // Second triangle ---------------------
+                triangles[triIndex + 3] = index; // vertex 0
+                triangles[triIndex + 4] = index + 1; // vertex 1
+                triangles[triIndex + 5] = index + Resolution + 1; // vertex 5
+                triIndex += 6;
             }
         }
         
@@ -92,13 +91,38 @@ public class TerrainFace
         _mesh.Clear();
         _mesh.vertices = vertices;
         _mesh.triangles = triangles;
+        
         // Recalculate the normals of the mesh to ensure lighting is correct
-        // _mesh.RecalculateNormals();
         Vector3[] normals = new Vector3[vertices.Length];
+        Vector4[] tangents = new Vector4[vertices.Length];
         for (int i = 0; i < normals.Length; i++)
         {
             normals[i] = vertices[i].normalized;
+            
+            // Calculate the tangents of the mesh
+            Vector4 tangent;
+            tangent.x = -normals[i].y;
+            tangent.y = normals[i].z;
+            tangent.z = normals[i].x;
+            tangent.w = -1f;
+            tangents[i] = tangent;
         }
-        _mesh.normals = normals;
+        // _mesh.normals = normals;
+        _mesh.tangents = tangents;
+        _mesh.RecalculateNormals();
+        
+        
+        // Assign the UVs of the mesh
+        Vector2[] uv = new Vector2[vertices.Length];
+        for (int y = 0; y < Resolution; y++)
+        {
+            for (int x = 0; x < Resolution; x++)
+            {
+                // Set the UVs of the mesh to be a percentage of the current x and y values, relative to the resolution.
+                // This will ensure that the texture is mapped correctly to the mesh.
+                uv[y * Resolution + x] = new Vector2((float)x / (Resolution - 1), (float)y / (Resolution - 1));
+            }
+        }
+        _mesh.uv = uv;
     }
 }
