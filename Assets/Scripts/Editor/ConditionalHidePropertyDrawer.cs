@@ -5,6 +5,7 @@ using UnityEngine;
 //Modified by: Sebastian Lague
 
 
+
 [CustomPropertyDrawer(typeof(ConditionalHideAttribute))]
 public class ConditionalHidePropertyDrawer : PropertyDrawer
 {
