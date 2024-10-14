@@ -1,18 +1,22 @@
+/* ShapeGenerator.cs
+ * This script is used to define the ShapeGenerator class, which is used to generate the shape of a procedural planet.
+ */
+
 using UnityEngine;
 
 public class ShapeGenerator
 {
-    SettingsShape settings;
-    INoiseFilter[] noiseFilters;
+    public SettingsShape settings;
+    public INoiseFilter[] noiseLayer;
     public MinMax elevationMinMax;
     
     public void UpdateSettings(SettingsShape settings)
     {
         this.settings = settings;
-        noiseFilters = new INoiseFilter[settings.noiseLayers.Length];
-        for (int i = 0; i < noiseFilters.Length; i++)
+        noiseLayer = new INoiseFilter[settings.noiseLayers.Length];
+        for (int i = 0; i < noiseLayer.Length; i++)
         {
-            noiseFilters[i] = NoiseFilterFactory.CreateNoiseFilter( settings.noiseLayers[i].noiseSettings );
+            noiseLayer[i] = NoiseFilterFactory.CreateNoiseFilter( settings.noiseLayers[i].noiseSettings);
         }
         
         // Create a new MinMax object to store the elevation min and max
@@ -26,16 +30,16 @@ public class ShapeGenerator
         
         // This is to store the value of the first layer,
         // in case it is needed as a mask for other layers
-        if (noiseFilters.Length > 0)
+        if (noiseLayer.Length > 0)
         {
-            firstLayerValue = noiseFilters[0].Evaluate(pointOnUnitSphere);
+            firstLayerValue = noiseLayer[0].Evaluate(pointOnUnitSphere);
             if (settings.noiseLayers[0].enabled)
             {
                 elevation = firstLayerValue;
             }
         }
         
-        for (var i = 1; i < noiseFilters.Length; i++)
+        for (var i = 1; i < noiseLayer.Length; i++)
         {
             if (!settings.noiseLayers[i].enabled) continue; // Skip the noise layer if it is not enabled
             
@@ -43,11 +47,27 @@ public class ShapeGenerator
             float mask = settings.noiseLayers[i].useFirstLayerAsMask ? firstLayerValue : 1;
             
             // Add the noise value to the overall elevation. Also apply the mask to the noise value.
-            elevation += noiseFilters[i].Evaluate(pointOnUnitSphere) * mask;
+            elevation += noiseLayer[i].Evaluate(pointOnUnitSphere) * mask;
         }
 
         elevation = settings.planetRadius * (1 + elevation);
         elevationMinMax.AddValue(elevation);
+        
+        // Return the point on the unit sphere, scaled by the elevation
+        // 'pointOnUnitSphere' is a vertex on the sphere
         return pointOnUnitSphere * elevation;
+    }
+    
+    public (float, float) CalculateMinMaxElevation(Vector3[] vertices) {
+        float minElevation = float.MaxValue;
+        float maxElevation = float.MinValue;
+
+        foreach (var vertex in vertices) {
+            float elevation = vertex.magnitude;
+            if (elevation < minElevation) minElevation = elevation;
+            if (elevation > maxElevation) maxElevation = elevation;
+        }
+
+        return (minElevation, maxElevation);
     }
 }

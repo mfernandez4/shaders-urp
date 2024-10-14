@@ -5,25 +5,28 @@
  */
 
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Planet : MonoBehaviour
 {
     [Range(2, 256)]
-    public int resolution = 32;
-    public bool autoUpdate = true;
-    public enum FaceRenderMask { All, Top, Bottom, Left, Right, Front, Back }
-    public FaceRenderMask faceRenderMask;
+    public int resolution = 32; // Number of vertices along each edge of the terrain face
+    public bool autoUpdate = true; // Automatically update the planet when settings are changed
+    public bool useComputeShader = true; // Use a compute shader to generate the planet's mesh
+    public ComputeShader noiseComputeShader; // Compute shader to use for generating the planet's mesh
+    public enum FaceRenderMask { All, Top, Bottom, Left, Right, Front, Back } // Faces of the planet to render
+    public FaceRenderMask faceRenderMask; // Which faces of the planet to render
     
     
-    public SettingsShape settingsShape;
-    public SettingsColor settingsColor;
+    public SettingsShape settingsShape; // Shape settings for the planet
+    public SettingsColor settingsColor; // Color settings for the planet
     
-    [HideInInspector] public bool shapeSettingsFoldout;
-    [HideInInspector] public bool colorSettingsFoldout;
+    [HideInInspector] public bool shapeSettingsFoldout; // Whether the shape settings are folded out in the inspector
+    [HideInInspector] public bool colorSettingsFoldout; // Whether the color settings are folded out in the inspector
 
 
-    private ShapeGenerator _shapeGenerator = new();
-    private ColorGenerator _colorGenerator = new();
+    private ShapeGenerator _shapeGenerator = new(); // Shape generator for the planet
+    private ColorGenerator _colorGenerator = new(); // Color generator for the planet
     
     // Array of mesh filters, for displaying the planet's mesh
     [SerializeField, HideInInspector] 
@@ -33,6 +36,7 @@ public class Planet : MonoBehaviour
 
     void Initialize()
     {
+        Profiler.BeginSample("Initialize/GeneratePlanet");
         _shapeGenerator.UpdateSettings(settingsShape);
         _colorGenerator.UpdateSettings(settingsColor);
         
@@ -69,7 +73,41 @@ public class Planet : MonoBehaviour
             bool renderFace = faceRenderMask == FaceRenderMask.All || (int) faceRenderMask - 1 == i;
             _meshFilters[i].gameObject.SetActive(renderFace);
         }
+        Profiler.EndSample();
     }
+    
+    void GenerateMesh()
+    {
+        Profiler.BeginSample("GenerateMesh/GeneratePlanet");
+        for (var index = 0; index < _terrainFaces.Length; index++)
+        {
+            // Skip the terrain face if it is not active
+            if (!_meshFilters[index].gameObject.activeSelf) continue;
+            
+            // Construct the mesh for the terrain face
+            var face = _terrainFaces[index];
+            if (noiseComputeShader != null && useComputeShader)
+            {
+                face.ConstructMeshCompute(noiseComputeShader);
+            }
+            else
+            {
+                face.ConstructMesh();
+            }
+        }
+        
+        // Update the elevation of the planet
+        _colorGenerator.UpdateElevation(_shapeGenerator.elevationMinMax);
+        // Debug.Log($"Elevation: min: {_shapeGenerator.elevationMinMax.Min}, max: {_shapeGenerator.elevationMinMax.Max}");
+        Profiler.EndSample();
+    }
+    
+    void GenerateColors()
+    {
+        _colorGenerator.UpdateColors();
+    }
+    
+    
     
     public void GeneratePlanet()
     {
@@ -90,27 +128,5 @@ public class Planet : MonoBehaviour
         if (!autoUpdate) return;
         Initialize();
         GenerateColors();
-    }
-
-    void GenerateMesh()
-    {
-        for (var index = 0; index < _terrainFaces.Length; index++)
-        {
-            // Skip the terrain face if it is not active
-            if (!_meshFilters[index].gameObject.activeSelf) continue;
-            
-            // Construct the mesh for the terrain face
-            var face = _terrainFaces[index];
-            face.ConstructMesh();
-        }
-        
-        // Update the elevation of the planet
-        _colorGenerator.UpdateElevation(_shapeGenerator.elevationMinMax);
-        Debug.Log($"Elevation: min: {_shapeGenerator.elevationMinMax.Min}, max: {_shapeGenerator.elevationMinMax.Max}");
-    }
-    
-    void GenerateColors()
-    {
-        _colorGenerator.UpdateColors();
     }
 }
