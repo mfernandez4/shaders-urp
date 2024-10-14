@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Profiling;
 
 [CustomEditor(typeof(Planet))]
 public class PlanetEditor : Editor
@@ -22,7 +23,9 @@ public class PlanetEditor : Editor
         
         if (GUILayout.Button("Generate Planet"))
         {
+            Profiler.BeginSample("Generate Planet");
             planet.GeneratePlanet();
+            Profiler.EndSample();
         }
 
         DrawSettingsEditor(planet.settingsShape, planet.OnShapeSettingsUpdated, ref planet.shapeSettingsFoldout, ref shapeEditor);
