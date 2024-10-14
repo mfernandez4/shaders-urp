@@ -27,7 +27,7 @@ public class RigidNoiseFilter : INoiseFilter
             v *= weight; // Apply the weight to the noise value
             weight = Mathf.Clamp01(v * settings.weightMultiplier); // Clamp the weight to 0 or 1
             
-            noiseValue += v * amplitude; // Clamp noise value from 0 to 1
+            noiseValue += v * amplitude; // Multiply the noise value by the amplitude
             frequency *= settings.roughness; // Scale the frequency by the roughness
             amplitude *= settings.persistence; // Scale the amplitude by the persistence
         }

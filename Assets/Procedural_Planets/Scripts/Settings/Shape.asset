@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6c4d7b8e5832944c9a93dd2712eda99, type: 3}
   m_Name: Shape
   m_EditorClassIdentifier: 
-  planetRadius: 2.7
+  planetRadius: 5.8
   noiseLayers:
   - enabled: 1
     useFirstLayerAsMask: 0
     noiseSettings:
       filterType: 0
       simpleNoiseSettings:
-        strength: 0.142
+        strength: 0.1
         octaves: 6
         frequency: 0.76
         roughness: 1.42
@@ -49,7 +49,7 @@ MonoBehaviour:
         minValue: 1.2
       rigidNoiseSettings:
         strength: 0.042
-        octaves: 6
+        octaves: 3
         frequency: 0.8
         roughness: 1.32
         persistence: 1.76
@@ -61,11 +61,53 @@ MonoBehaviour:
     noiseSettings:
       filterType: 1
       simpleNoiseSettings:
-        strength: 1
+        strength: 0.65
         octaves: 3
         frequency: 1
         roughness: 2
         persistence: 0.5
+        center: {x: 0, y: 0, z: 0}
+        minValue: 0
+      rigidNoiseSettings:
+        strength: 1
+        octaves: 6
+        frequency: 1.39
+        roughness: 4.2
+        persistence: 0.42
+        center: {x: 0, y: 0, z: 0}
+        minValue: 0.72
+        weightMultiplier: 0.69
+  - enabled: 1
+    useFirstLayerAsMask: 1
+    noiseSettings:
+      filterType: 1
+      simpleNoiseSettings:
+        strength: 0.65
+        octaves: 3
+        frequency: 1
+        roughness: 2
+        persistence: 0.5
+        center: {x: 0, y: 0, z: 0}
+        minValue: 0
+      rigidNoiseSettings:
+        strength: 0.44
+        octaves: 3
+        frequency: 2.73
+        roughness: 4.2
+        persistence: 0.42
+        center: {x: 0.4, y: 0, z: 0}
+        minValue: 0.94
+        weightMultiplier: 1.38
+  - enabled: 1
+    useFirstLayerAsMask: 1
+    noiseSettings:
+      filterType: 0
+      simpleNoiseSettings:
+        strength: 0
+        octaves: 3
+        frequency: 3.74
+        roughness: 1
+        persistence: 0.44
         center: {x: 0, y: 0, z: 0}
         minValue: 0
       rigidNoiseSettings:
