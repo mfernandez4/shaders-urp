@@ -16,10 +16,9 @@ public class NoiseSettings
     }
     public FilterType filterType;
     
-    
-    // [ConditionalHide("filterType", 0)]
+    [ConditionalHide("filterType", 0)]
     public SimpleNoiseSettings simpleNoiseSettings;
-    // [ConditionalHide("filterType", 1)]
+    [ConditionalHide("filterType", 1)]
     public RigidNoiseSettings rigidNoiseSettings;
 
 
@@ -34,7 +33,8 @@ public class NoiseSettings
         /// <summary>
         /// Number of layers of noise.
         /// </summary>
-        [Range(1,8)] public int octaves = 3;
+        [Range(1,8)]
+        public int octaves = 3;
     
         /// <summary>
         /// The roughness of the first layer of noise.
