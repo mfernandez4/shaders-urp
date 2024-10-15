@@ -79,7 +79,7 @@ public class Planet : MonoBehaviour
     void GenerateMesh()
     {
         Profiler.BeginSample("GenerateMesh/GeneratePlanet");
-        for (var index = 0; index < _terrainFaces.Length; index++)
+        for (var index = 0; index < 6; index++)
         {
             // Skip the terrain face if it is not active
             if (!_meshFilters[index].gameObject.activeSelf) continue;
@@ -98,13 +98,24 @@ public class Planet : MonoBehaviour
         
         // Update the elevation of the planet
         _colorGenerator.UpdateElevation(_shapeGenerator.elevationMinMax);
-        // Debug.Log($"Elevation: min: {_shapeGenerator.elevationMinMax.Min}, max: {_shapeGenerator.elevationMinMax.Max}");
+        Debug.Log($"Elevation: min: {_shapeGenerator.elevationMinMax.Min}, max: {_shapeGenerator.elevationMinMax.Max}");
         Profiler.EndSample();
     }
     
-    void GenerateColors()
+    public void GenerateColors()
     {
         _colorGenerator.UpdateColors();
+
+        for (var index = 0; index < 6; index++)
+        {
+            // Skip the terrain face if it is not active
+            if (!_meshFilters[index].gameObject.activeSelf) continue;
+
+            // Construct the mesh for the terrain face
+            var face = _terrainFaces[index];
+            // Update the UVs of the terrain face
+            face.UpdateUVs(_colorGenerator);
+        }
     }
     
     
