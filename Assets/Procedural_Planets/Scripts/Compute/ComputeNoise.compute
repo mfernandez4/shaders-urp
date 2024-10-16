@@ -1,0 +1,134 @@
+﻿#pragma kernel compute_noise
+
+#include "Noise.hlsl"
+
+// Buffers
+RWStructuredBuffer<float3> vertices;
+RWStructuredBuffer<uint> triangles;
+StructuredBuffer<noise_layer> noise_layers;
+// RWStructuredBuffer<float> minMaxElevation; // 0 = min, 1 = max
+RWStructuredBuffer<float> debugBuffer;  // In HLSL
+
+// Shared memory for storing min/max values per thread group
+// groupshared float localMin;
+// groupshared float localMax;
+
+// Constants
+uint resolution;
+uint num_layers;
+float planet_radius;
+float3 local_up;
+float3 local_right;
+float3 local_forward;
+
+// Function to convert float to int using bit reinterpretation
+int FloatToIntBits(float value) {
+    return asint(value); // Treats float bits as int
+}
+
+// Function to convert int back to float using bit reinterpretation
+float IntBitsToFloat(int value) {
+    return asfloat(value); // Treats int bits as float
+}
+
+void add_value(float value, out float min_value, out float max_value)
+{
+    if (value > max_value) max_value = value;
+    if (value < min_value) min_value = value;
+}
+
+void add_value(float value, out int min_value, out int max_value)
+{
+    add_value(FloatToIntBits(value), min_value, max_value);
+}
+
+
+// Function to calculate the elevation of a point on the planet
+float3 calculate_point_on_planet(float3 vertex)
+{
+    float elevation = 0;
+    float first_layer_value = 0;
+
+    if (num_layers > 0)
+    {
+        noise_layer noise_layer = noise_layers[0];
+        first_layer_value = (noise_layer.type == 0) ? simple_noise(vertex, noise_layer) : rigid_noise(vertex, noise_layer);
+
+        if (noise_layer.enabled)
+        {
+            elevation = first_layer_value;
+        }
+    }
+
+    
+    // Loop through each noise layer
+    for (uint i=1; i < num_layers; i++)
+    {
+        // Skip this layer if it's not enabled
+        if (!noise_layers[i].enabled) continue;
+        
+        // If the current noise layer is set to use the first layer as a mask, use the first layer value as the mask
+        float mask = noise_layers[i].use_first_layer_as_mask ? first_layer_value : 1;
+
+        // Add the noise value to the overall elevation. Also apply the mask to the noise value.
+        if (noise_layers[i].type == 0)
+        {
+            elevation += simple_noise(vertex, noise_layers[i]) * mask;
+        }
+        else
+        {
+            elevation += rigid_noise(vertex, noise_layers[i]) * mask;
+        }
+    }
+
+    elevation = planet_radius * (1 + elevation);
+
+    // Update the vertex with the new elevation
+    return vertex * elevation;
+}
+
+
+// Compute the noise for each vertex in the mesh
+[numthreads(8,8,1)]
+void compute_noise(uint3 id : SV_DispatchThreadID)
+{
+    // Calculate the x, y coordinates of the current thread in the mesh
+    uint x = id.x;
+    uint y = id.y;
+
+    if (x >= resolution || y >= resolution) return;  // Bounds check
+
+    // Compute the index of the current vertex
+    uint index = x + y * resolution;
+
+    // Calculate normalized (x, y) coordinates as a percentage
+    float2 percent = float2(x, y) / (resolution - 1);
+
+    // Compute the point on the unit cube and map to the unit sphere
+    float3 point_on_unit_cube = 
+        local_up
+        + (local_right *(percent.x - 0.5f) * 2)
+        + (local_forward * (percent.y - 0.5f) * 2);
+
+    // Normalize the point to get a point on the unit sphere
+    float3 point_on_unit_sphere = normalize(point_on_unit_cube);
+
+    // Apply the noise to the point on the unit sphere to get the final vertex position
+    vertices[index] = calculate_point_on_planet(point_on_unit_sphere);
+
+    // Generate the triangles for the mesh (if not at the edge of the mesh)
+    if (x == resolution - 1 || y == resolution - 1) return;
+    
+    // Calculate the index of the current triangle
+    uint tri_index = (x + y * (resolution - 1)) * 6;
+    
+    // Add the indices of the vertices that make up the current face
+    // First triangle ---------------------
+    triangles[tri_index] = index;
+    triangles[tri_index + 1] = index + resolution + 1;
+    triangles[tri_index + 2] = index + resolution;
+    // Second triangle ---------------------
+    triangles[tri_index + 3] = index;
+    triangles[tri_index + 4] = index + 1;
+    triangles[tri_index + 5] = index + resolution + 1;
+}
