@@ -28,7 +28,8 @@ public class SimpleNoiseFilter : INoiseFilter
         }
         
         // clamp the lowest noise values to the minimum value.
-        noiseValue = Mathf.Max(0, noiseValue - settings.minValue);
+        // noiseValue = Mathf.Max(0, noiseValue - settings.minValue);
+        noiseValue -= settings.minValue;
         noiseValue *= settings.strength; // Scale the noise value by the strength
         // noiseValue = Mathf.Pow(noiseValue, settings.contrast); // Apply contrast to the noise value
         return noiseValue;

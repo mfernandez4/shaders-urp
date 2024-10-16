@@ -24,7 +24,7 @@ public class ColorGenerator
         // Only update if the texture is valid and/or the height of the texture is not equal to the number of biomes
         if (texture == null || texture.height != numBiomes)
         {
-            texture = new Texture2D(textureResolution, numBiomes);
+            texture = new Texture2D(textureResolution * 2, numBiomes, TextureFormat.RGBA32, false);
         }
         
         // Create a new biome noise filter
@@ -82,11 +82,20 @@ public class ColorGenerator
         int colIndex = 0;
         foreach (var biome in settings.biomeColorSettings.biomes)
         {
+            Color gradientCol;
             // Loop through the pixels and set the color of the texture to the gradient color at that pixel
-            for (int i = 0; i < textureResolution; i++)
+            for (int i = 0; i < textureResolution * 2; i++)
             {
-                // remap the value of i(index/pixel) to a value between 0 and 1 to map the pixel to the gradient
-                Color gradientCol = biome.gradient.Evaluate(i / (textureResolution - 1f));
+                if (i < textureResolution)
+                {
+                    // Set the color of the pixel to the gradient color
+                    gradientCol = settings.oceanColor.Evaluate(i / (textureResolution - 1f));
+                }
+                else
+                {
+                    // remap the value of i(index/pixel) to a value between 0 and 1 to map the pixel to the gradient
+                    gradientCol = biome.gradient.Evaluate((i - textureResolution) / (textureResolution - 1f));
+                }
                 Color tintCol = biome.tint;
                 
                 colors[colIndex] = gradientCol * (1 - biome.tintPercent) + tintCol * biome.tintPercent;

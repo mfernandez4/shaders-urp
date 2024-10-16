@@ -57,14 +57,15 @@ public class TerrainFace
     public void ConstructMesh()
     {
         Profiler.BeginSample("ConstructMesh/TerrainFace");
-        
-        Vector2[] uv = _mesh.uv;
+
         // Array of vertices, with a length of Resolution squared
         Vector3[] vertices = new Vector3[Resolution * Resolution];
         // Array of triangles, with a length of 6 times Resolution squared
         int[] triangles = new int[(Resolution - 1) * (Resolution - 1) * 6];
+        // Array of UVs, create new array if the length of the UVs and vertices arrays are not the same size
+        Vector2[] uv = (_mesh.uv.Length == vertices.Length) ? _mesh.uv : new Vector2[vertices.Length];
 
-        ConstructVerticesSequentially(ref vertices, ref triangles);
+        ConstructVerticesSequentially(ref vertices, ref triangles, ref uv);
         
         // Assign the vertices and triangles to the mesh
         _mesh.Clear();
@@ -81,7 +82,7 @@ public class TerrainFace
         Profiler.EndSample();
     }
 
-    private void ConstructVerticesSequentially(ref Vector3[] vertices, ref int[] triangles)
+    private void ConstructVerticesSequentially(ref Vector3[] vertices, ref int[] triangles, ref Vector2[] uv)
     {
         int triIndex = 0; // Index of the current triangle in the triangles array
         // Loop through each vertex in the vertices array
@@ -101,7 +102,14 @@ public class TerrainFace
 
                 // Turn into a point on the unit sphere
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                vertices[index] = shapeGenerator.CalculatePointOnPlanet(pointOnUnitSphere);
+                float unscaledElevation = shapeGenerator.CalculateUnscaledElevation(pointOnUnitSphere);
+                
+                // Scale the point on the unit sphere by the elevation
+                vertices[index] = pointOnUnitSphere * shapeGenerator.GetScaledElevation(unscaledElevation);
+                
+                // set the unscaled elevation to the uv.y component of the uv vector for usage in the material
+                uv[index].y = unscaledElevation;
+                
                 
                 /*
                  * The vertices are arranged in the following way:
@@ -237,7 +245,7 @@ public class TerrainFace
 
     public void UpdateUVs(ColorGenerator colorGenerator)
     {
-        Vector2[] uv = new Vector2[Resolution * Resolution];
+        Vector2[] uv = _mesh.uv;
 
         // Loop through each uv in the uv array
         for (int y = 0; y < Resolution; y++)
@@ -256,8 +264,9 @@ public class TerrainFace
 
                 // Turn into a point on the unit sphere
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
-                
-                uv[index] = new Vector2( colorGenerator.BiomePercentFromPoint(pointOnUnitSphere), 0 );
+
+                // Set the uv.x component to the biome percent from the point on the unit sphere
+                uv[index].x = colorGenerator.BiomePercentFromPoint(pointOnUnitSphere);
             }
         }
         

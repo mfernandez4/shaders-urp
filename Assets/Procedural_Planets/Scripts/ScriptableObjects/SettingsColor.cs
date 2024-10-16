@@ -9,6 +9,9 @@ public class SettingsColor : ScriptableObject
     
     [Tooltip("The biome color settings that will be used to color the planet.")]
     public BiomeColorSettings biomeColorSettings;
+    
+    [Tooltip("The ocean gradient color of the planet.")]
+    public Gradient oceanColor;
 
     
     
