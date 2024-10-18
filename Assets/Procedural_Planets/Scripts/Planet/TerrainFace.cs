@@ -166,13 +166,13 @@ public class TerrainFace
                 type = noiseType,
                 enabled = shapeGenerator.settings.noiseLayers[i].enabled ? 1 : 0,
                 use_first_layer_as_mask = shapeGenerator.settings.noiseLayers[i].useFirstLayerAsMask ? 1 : 0,
-                strength = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.strength,
-                octaves = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.octaves,
-                frequency = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.frequency,
-                roughness = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.roughness,
-                persistence = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.persistence,
-                center = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.center,
-                min_value = shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.minValue,
+                strength = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.strength : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.strength,
+                octaves = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.octaves : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.octaves,
+                frequency = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.frequency : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.frequency,
+                roughness = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.roughness : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.roughness,
+                persistence = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.persistence : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.persistence,
+                center = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.center : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.center,
+                min_value = noiseType == 0 ? shapeGenerator.settings.noiseLayers[i].noiseSettings.simpleNoiseSettings.minValue : shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.minValue,
                 weight_multiplier = shapeGenerator.settings.noiseLayers[i].noiseSettings.rigidNoiseSettings.weightMultiplier,
                 _padding1 = 0  // Ensure alignment
             };
@@ -227,6 +227,7 @@ public class TerrainFace
         triangleBuffer.Release();
         noiseLayerBuffer.Release();
         // minMaxBuffer.Release();
+        
         
 
         // Assign the vertices and triangles to the mesh

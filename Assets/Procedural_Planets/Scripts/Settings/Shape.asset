@@ -98,24 +98,3 @@ MonoBehaviour:
         center: {x: 0.4, y: 0, z: 0}
         minValue: 0.94
         weightMultiplier: 1.38
-  - enabled: 1
-    useFirstLayerAsMask: 1
-    noiseSettings:
-      filterType: 0
-      simpleNoiseSettings:
-        strength: 0
-        octaves: 3
-        frequency: 3.74
-        roughness: 1
-        persistence: 0.44
-        center: {x: 0, y: 0, z: 0}
-        minValue: 0
-      rigidNoiseSettings:
-        strength: 1
-        octaves: 6
-        frequency: 1.39
-        roughness: 4.2
-        persistence: 0.42
-        center: {x: 0, y: 0, z: 0}
-        minValue: 0.72
-        weightMultiplier: 0.69
