@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d656f7726819b3c4083332ab40c4a6c6, type: 3}
+  m_Name: MoonShape
+  m_EditorClassIdentifier: 
+  randomize: 0
+  seed: 420
+  heightMapCompute: {fileID: 7200000, guid: ea2806a6ef9362f4db9106a81588a2b8, type: 3}
+  perturbVertices: 0
+  perturbCompute: {fileID: 0}
+  perturbStrength: 0.387
+  shapeNoise:
+    filterType: 1
+    simpleNoiseSettings:
+      strength: -26.98
+      octaves: 5
+      frequency: 1
+      roughness: 2
+      persistence: 0.5
+      center: {x: 0, y: 0, z: 0}
+      minValue: 1.04
+    rigidNoiseSettings:
+      strength: 5
+      octaves: 8
+      frequency: 0.69
+      roughness: 2.72
+      persistence: 0.46
+      center: {x: 0, y: 0, z: 0}
+      minValue: 0
+      weightMultiplier: 1.39
+  ridgeNoise:
+    filterType: 0
+    simpleNoiseSettings:
+      strength: 1
+      octaves: 3
+      frequency: 1
+      roughness: 2
+      persistence: 0.5
+      center: {x: 0, y: 0, z: 0}
+      minValue: 0
+    rigidNoiseSettings:
+      strength: 1
+      octaves: 3
+      frequency: 1
+      roughness: 2
+      persistence: 0.5
+      center: {x: 0, y: 0, z: 0}
+      minValue: 0
+      weightMultiplier: 0.8
+  ridgeNoise2:
+    filterType: 0
+    simpleNoiseSettings:
+      strength: 1
+      octaves: 3
+      frequency: 1
+      roughness: 2
+      persistence: 0.5
+      center: {x: 0, y: 0, z: 0}
+      minValue: 0
+    rigidNoiseSettings:
+      strength: 1
+      octaves: 3
+      frequency: 1
+      roughness: 2
+      persistence: 0.5
+      center: {x: 0, y: 0, z: 0}
+      minValue: 0
+      weightMultiplier: 0.8

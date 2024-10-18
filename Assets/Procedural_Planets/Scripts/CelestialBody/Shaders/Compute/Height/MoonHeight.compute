@@ -1,0 +1,41 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#include "Assets/Procedural_Planets/Scripts/Compute/Noise.hlsl"
+
+StructuredBuffer<float3> vertices;
+RWStructuredBuffer<float> heights;
+uint num_vertices;
+
+StructuredBuffer<noise_layer> noise_settings;
+
+[numthreads(512,1,1)]
+void CSMain (uint id : SV_DispatchThreadID)
+{
+    if (id >= num_vertices) return;
+    static const float elevationMultiplier = 0.01f;
+
+    float3 pos = vertices[id];
+
+    // noise_layer noise_settings;
+    // noise_settings.type = 0;
+    // noise_settings.enabled = 0;
+    // noise_settings.use_first_layer_as_mask = 0;
+    //
+    // noise_settings.strength = 0.1f;
+    // noise_settings.octaves = 5;
+    // noise_settings.frequency = 1.0f;
+    // noise_settings.roughness = 1.5f;
+    // noise_settings.persistence = 0.5f;
+    // noise_settings.center = float3(0.0f, 0.0f, 0.0f);
+    // noise_settings.min_value = 0.0f;
+    // noise_settings.weight_multiplier = 1.25f;
+    
+    
+    // Low-frequency noise to add some slight deformation to the base sphere shape of the moon
+    float shape_noise = noise_settings[0].type == 0 ? simple_noise(pos, noise_settings[0]) : rigid_noise(pos, noise_settings[0]);
+
+
+    float noise_sum = (shape_noise) * elevationMultiplier;
+    float final_height = 1 + noise_sum;
+    heights[id] = final_height;
+}
