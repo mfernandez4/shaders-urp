@@ -1,17 +1,13 @@
 ﻿#pragma kernel compute_noise
 
-#include "Noise.hlsl"
+#include "Assets/Procedural_Planets/Scripts/Compute/FractalNoise.hlsl"
 
 // Buffers
 RWStructuredBuffer<float3> vertices;
 RWStructuredBuffer<uint> triangles;
 StructuredBuffer<noise_layer> noise_layers;
 // RWStructuredBuffer<float> minMaxElevation; // 0 = min, 1 = max
-RWStructuredBuffer<float> debugBuffer;  // In HLSL
-
-// Shared memory for storing min/max values per thread group
-// groupshared float localMin;
-// groupshared float localMax;
+RWStructuredBuffer<float> debugBuffer;
 
 // Constants
 uint resolution;

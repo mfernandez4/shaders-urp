@@ -19,15 +19,15 @@ MonoBehaviour:
   perturbCompute: {fileID: 0}
   perturbStrength: 0.387
   shapeNoise:
-    filterType: 1
+    filterType: 0
     simpleNoiseSettings:
-      strength: -26.98
+      strength: 15.84
       octaves: 5
       frequency: 1
-      roughness: 2
+      roughness: 1.25
       persistence: 0.5
       center: {x: 0, y: 0, z: 0}
-      minValue: 1.04
+      minValue: 1.1
     rigidNoiseSettings:
       strength: 5
       octaves: 8
