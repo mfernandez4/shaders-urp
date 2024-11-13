@@ -1,7 +1,7 @@
-using System;
+
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Profiling;
 
 
 [ExecuteInEditMode]
@@ -46,6 +46,8 @@ public class CelestialBody : MonoBehaviour
     // This allows for updating the shape/shading settings in the editor
     void HandleGeneration()
     {
+        Profiler.BeginSample("CelestialBody.cs --> HandleGeneration");
+        
         if (!CanGenerateMesh()) return;
         // Debug.Log("HandleGeneration");
         
@@ -72,6 +74,8 @@ public class CelestialBody : MonoBehaviour
             // TODO: Dispatch shading compute shader from CelestialBodyShading ( GenereateShadingData )
             Debug.Log("Shading noise settings updated");
         }
+        
+        Profiler.EndSample();
     }
 
     private void BaseMesh()
@@ -125,6 +129,8 @@ public class CelestialBody : MonoBehaviour
     // Returns the min/max height of the terrain
     private Vector2 GenerateTerrainMesh(ref Mesh mesh, int res)
     {
+        Profiler.BeginSample("CelestialBody.cs --> GenerateTerrainMesh");
+        
         Debug.Log("GenerateTerrainMesh ...");
         var (vertices, triangles) = CreateSphereVertsAndTris (res);
         
@@ -177,11 +183,14 @@ public class CelestialBody : MonoBehaviour
         
         // Return the min/max height
         return new Vector2(minHeight, maxHeight);
+        
     }
 
     
     private void CreateMesh(ref Mesh mesh, int numVertices)
     {
+        Profiler.BeginSample("CelestialBody.cs --> CreateMesh");
+        
         // Vertex count check - 16 bit index buffer limit is 65535. If the vertex count exceeds this, we need to use 32 bit index buffer.
         const int vertexLimit16Bit = 1 << 16 - 1; // 65535
         
@@ -190,12 +199,16 @@ public class CelestialBody : MonoBehaviour
         
         // Set the mesh index format - 16 bit or 32 bit
         mesh.indexFormat = numVertices > vertexLimit16Bit ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+        
+        Profiler.EndSample();
     }
 
 
     private void DrawMesh()
     {
+        Profiler.BeginSample("CelestialBody.cs --> DrawMesh");
         GameObject terrainObject = GetOrCreateMeshObject ("Terrain Mesh", _mesh, bodySettings.shading.terrainMaterial);
+        Profiler.EndSample();
     }
 
     private GameObject GetOrCreateMeshObject(string name, Mesh mesh, Material terrainMaterial)
@@ -233,6 +246,7 @@ public class CelestialBody : MonoBehaviour
 
     private (Vector3[] vertices, int[] triangles) CreateSphereVertsAndTris(int res)
     {
+        Profiler.BeginSample("CelestialBody.cs --> CreateSphereVertsAndTris");
         // Create sphere mesh generator
         if (sphereGenerators == null) sphereGenerators = new Dictionary<int, SphereMesh>();
         
@@ -245,6 +259,9 @@ public class CelestialBody : MonoBehaviour
         var triangles = new int[generator.Triangles.Length];
         System.Array.Copy(generator.Vertices, vertices, vertices.Length);
         System.Array.Copy(generator.Triangles, triangles, triangles.Length);
+        
+        Profiler.EndSample();
+        
         return (vertices, triangles);
     }
 

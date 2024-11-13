@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Profiling;
 
 
 public abstract class CelestialBodyShape : ScriptableObject
@@ -20,6 +21,8 @@ public abstract class CelestialBodyShape : ScriptableObject
 
     public virtual float[] CalculateHeights(ComputeBuffer vertexBuffer)
     {
+        Profiler.BeginSample("CelestialBodyShape.cs --> CalculateHeights");
+        
         Debug.Log("Calculating heights...");
         // Debug.Log( System.Environment.StackTrace );
         
@@ -50,6 +53,7 @@ public abstract class CelestialBodyShape : ScriptableObject
         var heights = new float[vertexBuffer.count];
         heightBuffer.GetData(heights);
         return heights;
+        
     }
 
     public virtual void ReleaseBuffers()

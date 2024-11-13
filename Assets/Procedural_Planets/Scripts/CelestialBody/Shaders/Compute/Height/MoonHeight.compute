@@ -1,25 +1,54 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
-#include "Assets/Procedural_Planets/Scripts/Compute/FractalNoise.hlsl"
+
+#include "Assets/Procedural_Planets/Scripts/Shaders/Includes/FractalNoise.hlsl"
+#include "Assets/Procedural_Planets/Scripts/Shaders/Includes/ValueNoise.hlsl"
+
+
 
 StructuredBuffer<float3> vertices;
 RWStructuredBuffer<float> heights;
 uint num_vertices;
 
+
 StructuredBuffer<noise_layer> noise_settings;
+static const float elevationMultiplier = 0.01f;
+
+
 
 [numthreads(512,1,1)]
 void CSMain (uint id : SV_DispatchThreadID)
 {
     if (id >= num_vertices) return;
-    static const float elevationMultiplier = 0.01f;
 
     float3 pos = vertices[id];
     
-    // Low-frequency noise to add some slight deformation to the base sphere shape of the moon
-    float shape_noise = noise_settings[0].type == 0 ? simple_noise(pos, noise_settings[0]) : rigid_noise(pos, noise_settings[0]);
-    
-    float noise_sum = (shape_noise) * elevationMultiplier;
-    float final_height = 1 + noise_sum;
+    // // Low-frequency noise to add some slight deformation to the base sphere shape of the moon
+    // float shape_noise = noise_settings[0].type == 0 ? simple_noise(pos, noise_settings[0]) : rigid_noise(pos, noise_settings[0]);
+    //
+    // float noise_sum = (shape_noise) * elevationMultiplier;
+    // float final_height = 1 + noise_sum;
+    // heights[id] = final_height;
+
+
+    // Compute Value Noise and its derivatives
+    // float4 noiseResult = noised(pos);
+    // float shape_noise = noiseResult.x;
+    // float3 noiseDerivatives = noiseResult.yzw;
+
+    // Optionally, use fBm
+    // float fbmResult = noise_settings[0].type == 0 ? fBm(pos, noise_settings[0]) : fBm2(pos, noise_settings[0]);
+    float fbmResult = noise_settings[0].type == 0 ? simple_fBm_c(pos, noise_settings[0]) : rigid_fBm_c(pos, noise_settings[0]);
+    float shape_noise = fbmResult * elevationMultiplier;
+    // float3 noiseDerivatives = fbmResult.yzw;
+
+    float noise_sum = shape_noise * elevationMultiplier;
+
+    // Compute final height with optional erosion effect
+    // float slope = length(noiseDerivatives);
+    // float erosion_factor = 1.0f / (1.0f + slope * slope);
+    // float adjusted_noise = shape_noise * erosion_factor;
+    // float final_height = 1.0f + adjusted_noise * elevationMultiplier;
+    float final_height = 1.0f + noise_sum;
     heights[id] = final_height;
 }

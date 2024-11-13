@@ -17,26 +17,26 @@ MonoBehaviour:
   heightMapCompute: {fileID: 7200000, guid: ea2806a6ef9362f4db9106a81588a2b8, type: 3}
   perturbVertices: 0
   perturbCompute: {fileID: 0}
-  perturbStrength: 0.387
+  perturbStrength: 0.307
   shapeNoise:
     filterType: 0
     simpleNoiseSettings:
-      strength: 15.84
-      octaves: 5
-      frequency: 1
-      roughness: 1.25
-      persistence: 0.5
-      center: {x: 0, y: 0, z: 0}
-      minValue: 1.1
-    rigidNoiseSettings:
-      strength: 5
+      strength: 800
       octaves: 8
-      frequency: 0.69
-      roughness: 2.72
-      persistence: 0.46
-      center: {x: 0, y: 0, z: 0}
-      minValue: 0
-      weightMultiplier: 1.39
+      frequency: 1.18
+      roughness: 1.83
+      persistence: 1.86
+      center: {x: 0.6, y: 0, z: 0}
+      minValue: 0.13
+    rigidNoiseSettings:
+      strength: 1200
+      octaves: 8
+      frequency: 1.3
+      roughness: 1.73
+      persistence: 2.21
+      center: {x: 4.78, y: 0, z: 0}
+      minValue: 0.08
+      weightMultiplier: 6.6
   ridgeNoise:
     filterType: 0
     simpleNoiseSettings:

@@ -30,7 +30,7 @@ public class USBSimpleColorController : MonoBehaviour
         rend.material.SetTexture("_MainTex", renderTexture);
         
         // Generate the thread group to run the compute shader
-        int threadGroups = textureSize / 8;
+        int threadGroups = textureSize / 8; // 512 / 8 = 64
         computeShader.Dispatch(0, threadGroups, threadGroups, 1);
     }
 }
